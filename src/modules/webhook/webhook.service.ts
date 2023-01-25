@@ -27,5 +27,7 @@ export class WebhookService {
     return `This action removes a #${id} webhook`;
   }
 
-  async setTelegramWebhook(url: string) {}
+  async setTelegramWebhook(url: string) {
+    return await this.telegram.setWebhook(url);
+  }
 }

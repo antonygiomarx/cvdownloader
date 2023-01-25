@@ -20,5 +20,6 @@ import { ChannelsModule } from './modules/channels/channels.module';
   ],
   controllers: [AppController],
   providers: [AppService, ScrapperService, PdfService, StorageService],
+  exports: [],
 })
 export class AppModule {}
