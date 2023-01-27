@@ -12,8 +12,6 @@ export class ResumeioStrategy implements BaseStrategy {
   async scrape(): Promise<Buffer[]> {
     await this.page.goto(this.url);
 
-    await this.page.waitForSelector('.pdf-viewer__page');
-
     await this.page.waitForTimeout(this.timeout);
 
     const elements = await this.page.$$('.pdf-viewer__page');

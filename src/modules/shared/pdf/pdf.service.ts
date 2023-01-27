@@ -5,17 +5,25 @@ export class PdfService {
   private readonly hummus = require('hummus');
   private readonly memoryStreams = require('memory-streams');
 
-  async combine(pdfs: Buffer[]) {
+  async combine(pdfs: Buffer[]): Promise<Express.Multer.File> {
     let combinedPdf = pdfs[0];
 
     for (let i = 1; i < pdfs.length; i++) {
       combinedPdf = await this.join(combinedPdf, pdfs[i]);
     }
 
-    return combinedPdf;
+    const filename = new Date().getTime() + '.pdf';
+
+    return {
+      buffer: combinedPdf,
+      originalname: filename,
+      mimetype: 'application/pdf',
+      size: combinedPdf.byteLength,
+      filename,
+    } as Express.Multer.File;
   }
 
-  private async join(pdf1: Buffer, pdf2: Buffer) {
+  private async join(pdf1: Buffer, pdf2: Buffer): Promise<Buffer> {
     const outStream = new this.memoryStreams.WritableStream();
 
     try {
@@ -31,7 +39,7 @@ export class PdfService {
       const newBuffer = outStream.toBuffer();
       outStream.end();
 
-      return newBuffer as Buffer;
+      return newBuffer;
     } catch (e) {
       outStream.end();
       throw new Error('Error during PDF combination: ' + e.message);

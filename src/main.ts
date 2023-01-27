@@ -1,22 +1,33 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+export class App {
+  static readonly logger = new Logger('App');
 
-  app.enableCors();
+  static readonly port = process.env.PORT || 3000;
 
-  app.setGlobalPrefix('api');
+  static async start() {
+    const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+    app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT || 3000);
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
+
+    await app.listen(this.port);
+  }
 }
-bootstrap();
+
+App.start()
+  .then(() => {
+    App.logger.log(`Server started on port ${App.port}`);
+  })
+  .catch((error) => {
+    App.logger.error(error);
+  });

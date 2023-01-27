@@ -2,20 +2,16 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { PdfService } from '../pdf/pdf.service';
-import { StorageService } from '../storage/storage.service';
 import { ResumeioStrategy } from './strategies/resumeio.strategy';
-import { RegexUtil } from 'src/modules/regex.utl';
 import { PlaywrightProvider } from './providers/playwright';
+import { RegexUtil } from '../../util/regex.util';
+import { StorageService } from '@/modules/storage/storage.service';
 
 @Injectable()
 export class ScrapperService {
-  private readonly logger = new Logger(ScrapperService.name);
-
-  provider = new PlaywrightProvider();
-
+  provider: PlaywrightProvider;
   timeout: number;
-
-  url: string;
+  private readonly logger = new Logger(ScrapperService.name);
 
   constructor(
     private readonly config: ConfigService,
@@ -24,15 +20,15 @@ export class ScrapperService {
   ) {
     this.logger.log('ScrapperService initialized!');
 
-    this.url = this.config.get('CRAWL_URL');
-
     this.timeout = +this.config.get<number>('CRAWL_TIMEOUT') || 15000;
 
-    this.logger.log(`Crawl timeout: ${this.timeout}, URL: ${this.url}, `);
+    this.logger.log(`Crawl timeout: ${this.timeout}ms `);
+
+    this.provider = new PlaywrightProvider();
   }
 
-  async scrape(name?: string) {
-    this.logger.log(`Crawling ${this.url}`);
+  async scrape(url: string): Promise<string> {
+    this.logger.log(`Crawling ${url}`);
 
     const browser = await this.provider.core.launch({
       headless: true,
@@ -40,27 +36,23 @@ export class ScrapperService {
 
     const page = await browser.newPage();
 
-    if (!this.url) {
+    if (!url) {
       throw new BadRequestException('URL is required');
     }
 
     const scrapper = new ResumeioStrategy(
       RegexUtil.url,
       page,
-      this.url,
+      url,
       this.timeout,
     );
 
     const pdfs = await scrapper.scrape();
 
-    const combinedPdfs = await this.pdfService.combine(pdfs);
+    const file = await this.pdfService.combine(pdfs);
 
     await browser.close();
 
-    const path = await this.storageService.save(name, combinedPdfs);
-
-    this.logger.log(`Saved file to ${path}`);
-
-    return path;
+    return await this.storageService.save(file);
   }
 }

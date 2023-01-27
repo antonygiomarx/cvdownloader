@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
-import { TelegramProvider } from '../channels/providers/telegram';
+import { TelegramService } from '../channels/telegram/telegram.service';
 
 @Injectable()
 export class WebhookService {
-  constructor(private readonly telegram: TelegramProvider) {}
+  constructor(private readonly telegram: TelegramService) {}
 
   create(createWebhookDto: CreateWebhookDto) {
     return 'This action adds a new webhook';

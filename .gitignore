@@ -34,10 +34,13 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# env files
+# env local
 .env
 
 
-#lock files
+#lock local
 package-lock.json
 yarn.lock
+
+#static local
+temp

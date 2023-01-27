@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { TelegramProvider } from './providers/telegram';
+import { TelegramService } from './telegram/telegram.service';
 import { HttpModule } from '@nestjs/axios';
-import { TelegramModule, TelegramService } from 'nestjs-telegram';
-import { AppModule } from 'src/app.module';
+import { TelegramModule } from 'nestjs-telegram';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TelegramController } from '@/modules/channels/telegram/telegram.controller';
+import { SharedModule } from '@/modules/shared/shared.module';
 
 @Module({
   imports: [
@@ -15,8 +16,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         botKey: configService.get('TELEGRAM_BOT_TOKEN'),
       }),
     }),
+    SharedModule,
   ],
-  providers: [TelegramProvider],
-  exports: [TelegramProvider, TelegramModule],
+  providers: [TelegramService],
+  exports: [TelegramService, TelegramModule],
+  controllers: [TelegramController],
 })
 export class ChannelsModule {}
