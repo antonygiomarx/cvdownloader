@@ -1,8 +1,7 @@
-
 version: '3'
 
 services:
-   app:
+  app:
     build: .
     restart: always
     volumes:
@@ -10,6 +9,13 @@ services:
     ports:
       - "${PORT}:${PORT}"
     environment:
-      APP_PORT: ${PORT}
-      
-    container_name: app
+      PORT: ${PORT}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      CRAWL_TIMEOUT: ${CRAWL_TIMEOUT}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_DEFAULT_REGION}
+      AWS_BUCKET: ${AWS_S3_BUCKET}
+
+
+    container_name: cvdownloader
