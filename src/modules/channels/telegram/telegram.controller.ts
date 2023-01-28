@@ -38,6 +38,24 @@ export class TelegramController {
     const { text } = message;
 
     try {
+      if (text === '/start') {
+        this.logger.log('Start command received');
+
+        return await this.telegramService.sendMessage(
+          message.chat.id.toString(),
+          GenericFlow.welcome.text,
+        );
+      }
+
+      if (text === '/help') {
+        this.logger.log('Start command received');
+
+        return await this.telegramService.sendMessage(
+          message.chat.id.toString(),
+          GenericFlow.help.text,
+        );
+      }
+
       if (text === 'ping') {
         this.logger.log('Start command received');
 
