@@ -37,7 +37,7 @@ COPY --from=builder ./app/dist/ ./app
 # Dar permiso para ejecutar la applicación
 RUN adduser --disabled-password cvdownloader
 RUN chown -R cvdownloader:cvdownloader ./cvdownloader
-USER pokeuser
+USER cvdownloader
 
 EXPOSE 3000
 
