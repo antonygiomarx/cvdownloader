@@ -1,9 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 
 export interface ScrapperProvider {
-  core: any;
+  core: unknown;
 
   httpService?: HttpService;
 
-  scrape(url: string): Promise<Buffer[]>;
+  scrape(): Promise<Buffer[]>;
 }

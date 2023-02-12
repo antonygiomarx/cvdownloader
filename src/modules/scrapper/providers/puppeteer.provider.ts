@@ -1,44 +1,42 @@
-import { BrowserType, chromium, ChromiumBrowser, Page } from 'playwright';
-import { ScrapperProvider } from '@/modules/scrapper/providers/interfaces/scrapper.provider';
 import { Logger } from '@nestjs/common';
+import * as puppeteer from 'puppeteer';
+import { ScrapperProvider } from './interfaces/scrapper.provider';
 
-export class PlaywrightProvider implements ScrapperProvider {
-  private readonly logger = new Logger(PlaywrightProvider.name);
-  core: BrowserType<ChromiumBrowser>;
-  page: Page;
+export class PuppeteerProvider implements ScrapperProvider {
+  private readonly logger = new Logger(PuppeteerProvider.name);
+  core: puppeteer.Browser;
+  page: puppeteer.Page;
 
   constructor(
     private readonly url: string,
     private readonly timeout: number,
     private readonly urlRegex: RegExp,
-  ) {
-    this.core = chromium;
-  }
+  ) {}
 
   async scrape(): Promise<any> {
     try {
-      const browser = await this.core.launch({
-        headless: false,
-      });
+      if (!this.core) this.core = await puppeteer.launch({ headless: false });
 
-      if (!this.page) this.page = await browser.newPage();
+      if (!this.page) this.page = await this.core.newPage();
 
       await this.page.goto(this.url);
 
       await this.page.waitForTimeout(this.timeout);
 
-      const elements = await this.page.$$('.pdf-viewer__page');
+      const elements = await this.page.$$eval('.pdf-viewer__page', (el) => {
+        this.logger.log(el);
+
+        return el.map((el) => el.getAttribute('style'));
+      });
 
       if (!elements) throw new Error('No elements found!');
+
+      this.logger.log(elements);
 
       const items = [];
 
       for (const element of elements) {
-        const el = await element.getAttribute('style');
-
-        if (!el) continue;
-
-        const url = el.match(this.urlRegex);
+        const url = element.toString().match(this.urlRegex);
         items.push(url);
       }
 

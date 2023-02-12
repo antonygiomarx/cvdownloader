@@ -1,35 +1,48 @@
 import * as cheerio from 'cheerio';
 import { HttpService } from '@nestjs/axios';
 import { ScrapperProvider } from '@/modules/scrapper/providers/interfaces/scrapper.provider';
-import { lastValueFrom } from 'rxjs';
+import { Logger } from '@nestjs/common';
 
 export class CheerioProvider implements ScrapperProvider {
+  private readonly logger = new Logger(CheerioProvider.name);
   core = cheerio;
 
-  constructor(readonly httpService: HttpService) {}
+  constructor(
+    private url: string,
+    private timeout: number,
+    readonly httpService: HttpService,
+  ) {}
 
-  async scrape(url: string): Promise<any> {
-    // return a promise response
-    const { data } = await lastValueFrom(this.httpService.get(url));
+  async scrape(): Promise<any> {
+    try {
+      // return a promise response
+      const { data } = await this.httpService.get(this.url).toPromise();
 
-    const $ = this.core.load(data);
+      const $ = this.core.load(data);
 
-    const elements = $('.pdf-viewer__page');
+      const elements = $('.pdf-viewer__page');
 
-    if (!elements) throw new Error('No elements found!');
+      this.logger.log(`Found ${elements.length} PDFs`);
 
-    const items = [];
+      if (!elements) throw new Error('No elements found!');
 
-    for (const element of elements) {
-      const el = $(element).attr('style');
+      this.logger.log(elements);
 
-      if (!el) continue;
+      const items = [];
 
-      const url = el.match(/url\((.*?)\)/);
+      for (const element of elements) {
+        const el = $(element).attr('style');
 
-      items.push(url);
+        if (!el) continue;
+
+        const url = el.match(/url\((.*?)\)/);
+
+        items.push(url);
+      }
+
+      return items.filter((item) => item).map((item) => new URL(item[1]));
+    } catch (e) {
+      this.logger.error(e);
     }
-
-    return items.filter((item) => item).map((item) => new URL(item[1]));
   }
 }

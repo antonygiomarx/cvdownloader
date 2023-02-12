@@ -36,6 +36,7 @@
     "nest-aws-sdk": "^3.0.0",
     "nestjs-telegram": "^1.2.0",
     "playwright": "^1.30.0",
+    "puppeteer": "^19.6.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },

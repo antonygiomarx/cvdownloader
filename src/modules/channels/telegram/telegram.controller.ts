@@ -4,8 +4,7 @@ import { SetWebhookDto } from '@/modules/channels/telegram/dtos/set-webhook.dto'
 import { TelegramWebhookMessageEvent } from '@/modules/channels/telegram/interfaces/webhook-event.interface';
 import { RegexUtil } from '@/modules/util/regex.util';
 import { GenericFlow } from '@/modules/bot/flow/generic-flow';
-import { ScrapperService } from '@/modules/shared/scrapper/scrapper.service';
-import { ConfigService } from '@nestjs/config';
+import { ScrapperService } from '@/modules/scrapper/scrapper.service';
 
 @Controller('telegram')
 export class TelegramController {
@@ -14,7 +13,6 @@ export class TelegramController {
   constructor(
     private readonly telegramService: TelegramService,
     private readonly scrapperService: ScrapperService,
-    private readonly config: ConfigService,
   ) {}
 
   @Post('setWebhook')
