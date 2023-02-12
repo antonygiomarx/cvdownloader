@@ -14,11 +14,14 @@ export class PdfService {
 
     const filename = new Date().getTime() + '.pdf';
 
+    if (!combinedPdf || !filename || !combinedPdf || !combinedPdf?.byteLength)
+      throw new Error('Error during PDF combination');
+
     return {
       buffer: combinedPdf,
       originalname: filename,
       mimetype: 'application/pdf',
-      size: combinedPdf.byteLength,
+      size: combinedPdf.byteLength || 0,
       filename,
     } as Express.Multer.File;
   }
