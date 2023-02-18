@@ -1,7 +1,7 @@
 import { BaseStrategy } from './base.strategy';
 import { Logger } from '@nestjs/common';
 import { RegexUtil } from '@/modules/util/regex.util';
-import { PuppeteerProvider } from '../providers/puppeteer.provider';
+import { PlaywrightProvider } from '@/modules/scrapper/providers/playwright.provider';
 
 export class ResumeioStrategy implements BaseStrategy {
   urlRegex = RegexUtil.url;
@@ -11,7 +11,7 @@ export class ResumeioStrategy implements BaseStrategy {
 
   async build(): Promise<Buffer[]> {
     try {
-      const provider = new PuppeteerProvider(
+      const provider = new PlaywrightProvider(
         this.url,
         this.timeout,
         this.urlRegex,
