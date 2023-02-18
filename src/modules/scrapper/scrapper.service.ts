@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 import { PdfService } from '../shared/pdf/pdf.service';
 import { ResumeioStrategy } from './strategies/resumeio.strategy';
 import { StorageService } from '@/modules/storage/storage.service';
 import { ScrapperProvider } from '@/modules/scrapper/providers/interfaces/scrapper.provider';
+import { EnvironmentConfigService } from '@infrastructure/config/environment-config/environment-config.service';
 
 @Injectable()
 export class ScrapperService {
@@ -13,13 +13,11 @@ export class ScrapperService {
   private readonly logger = new Logger(ScrapperService.name);
 
   constructor(
-    private readonly config: ConfigService,
+    private readonly environmentConfigService: EnvironmentConfigService,
     private readonly pdfService: PdfService,
     private readonly storageService: StorageService,
   ) {
-    this.logger.log('ScrapperService initialized!');
-
-    this.timeout = +this.config.get<number>('CRAWL_TIMEOUT') || 15000;
+    this.timeout = +this.environmentConfigService.getScrapperTimeout();
   }
 
   async scrape(url: string): Promise<string> {

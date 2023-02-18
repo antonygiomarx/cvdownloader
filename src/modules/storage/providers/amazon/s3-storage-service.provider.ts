@@ -1,8 +1,8 @@
 import { StorageProvider } from '@/modules/storage/providers/interfaces/storage.provider';
-import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 import { InjectAwsService } from 'nest-aws-sdk';
+import { EnvironmentConfigService } from '@infrastructure/config/environment-config/environment-config.service';
 
 @Injectable()
 export class S3StorageService extends StorageProvider {
@@ -12,10 +12,10 @@ export class S3StorageService extends StorageProvider {
   constructor(
     @InjectAwsService(S3)
     private readonly s3: S3,
-    private readonly configService: ConfigService,
+    private readonly environmentConfigService: EnvironmentConfigService,
   ) {
     super();
-    this.bucket = this.configService.get('AWS_BUCKET');
+    this.bucket = this.environmentConfigService.bucket;
   }
 
   async upload(file: Express.Multer.File): Promise<string> {
@@ -24,7 +24,7 @@ export class S3StorageService extends StorageProvider {
     const oneDay = 60 * 60 * 24;
 
     const params = {
-      Bucket: this.configService.get('AWS_BUCKET'),
+      Bucket: this.environmentConfigService.bucket,
       Key: originalname,
       Body: buffer,
       Expires: new Date(Date.now() + oneDay),
@@ -42,7 +42,7 @@ export class S3StorageService extends StorageProvider {
     const { originalname } = file;
 
     const params = {
-      Bucket: this.configService.get('AWS_BUCKET'),
+      Bucket: this.environmentConfigService.bucket,
       Key: originalname,
     };
 
@@ -55,7 +55,7 @@ export class S3StorageService extends StorageProvider {
     const { originalname } = file;
 
     const params = {
-      Bucket: this.configService.get('AWS_BUCKET'),
+      Bucket: this.environmentConfigService.bucket,
       Key: originalname,
       Expires: 60 * 60,
     };
