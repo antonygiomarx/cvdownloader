@@ -17,9 +17,7 @@ export class PlaywrightProvider implements ScrapperProvider {
 
   async scrape(): Promise<any> {
     try {
-      const browser = await this.core.launch({
-        headless: false,
-      });
+      const browser = await this.core.launch();
 
       if (!this.page) this.page = await browser.newPage();
 
