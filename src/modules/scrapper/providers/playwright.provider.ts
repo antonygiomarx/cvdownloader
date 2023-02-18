@@ -3,9 +3,9 @@ import { ScrapperProvider } from '@/modules/scrapper/providers/interfaces/scrapp
 import { Logger } from '@nestjs/common';
 
 export class PlaywrightProvider implements ScrapperProvider {
-  private readonly logger = new Logger(PlaywrightProvider.name);
   core: BrowserType<ChromiumBrowser>;
   page: Page;
+  private readonly logger = new Logger(PlaywrightProvider.name);
 
   constructor(
     private readonly url: string,
@@ -48,12 +48,27 @@ export class PlaywrightProvider implements ScrapperProvider {
 
       for (const url of urls) {
         await this.page.goto(url.href);
-        await this.page.waitForTimeout(this.timeout);
+        await this.page.waitForTimeout(this.timeout / 2);
 
-        const pdf = await this.page.pdf();
+        const { height, width } = await this.page.$eval('img', (el) => {
+          const width = el.getAttribute('width') || 510;
+          const height = el.getAttribute('height') || 720;
+
+          return {
+            width,
+            height,
+          };
+        });
+
+        const pdf = await this.page.pdf({
+          height,
+          width,
+        });
 
         pdfs.push(pdf);
       }
+
+      await browser.close();
 
       return pdfs;
     } catch (e) {
