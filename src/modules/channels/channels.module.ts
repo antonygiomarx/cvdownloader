@@ -4,7 +4,7 @@ import { HttpModule } from '@nestjs/axios';
 import { TelegramModule } from 'nestjs-telegram';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegramController } from '@/modules/channels/telegram/telegram.controller';
-import { SharedModule } from '@/modules/shared/shared.module';
+import { ScrapperModule } from '@/modules/scrapper/scrapper.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { SharedModule } from '@/modules/shared/shared.module';
         botKey: configService.get('TELEGRAM_BOT_TOKEN'),
       }),
     }),
-    SharedModule,
+    ScrapperModule,
   ],
   providers: [TelegramService],
   exports: [TelegramService, TelegramModule],
