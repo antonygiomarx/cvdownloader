@@ -12,9 +12,12 @@ import { TelegramService } from '@infrastructure/messaging/providers/telegram/te
 import { SendTelegramMessageUseCases } from '@usecases/telegram/send-telegram-message-use.cases';
 import { MessagingModule } from '@infrastructure/messaging/messaging.module';
 import { BotService } from '@infrastructure/bot/bot.service';
-import { ScrapperService } from '@modules/scrapper/scrapper.service';
 import { HandleTelegramMessagesUsecases } from '@usecases/telegram/handle-telegram-messages.usecases';
-import { ScrapperModule } from '@modules/scrapper/scrapper.module';
+import { SendTelegramFileUseCases } from '@usecases/telegram/send-telegram-file.usecases';
+import { ScrapperModule } from '@infrastructure/scrapper/scrapper.module';
+import { ScrapperService } from '@infrastructure/scrapper/scrapper.service';
+import { RegexService } from '@infrastructure/util/regex/regex.service';
+import { UtilModule } from '@infrastructure/util/util.module';
 
 @Module({
   imports: [
@@ -24,6 +27,7 @@ import { ScrapperModule } from '@modules/scrapper/scrapper.module';
     BotModule,
     MessagingModule,
     ScrapperModule,
+    UtilModule,
   ],
 })
 export class TelegramUseCasesProxyModule {
@@ -48,23 +52,34 @@ export class TelegramUseCasesProxyModule {
             new UseCasesProxy(new SendTelegramMessageUseCases(telegramService)),
         },
         {
+          inject: [TelegramService],
+          provide: SendTelegramFileUseCases.USE_CASE,
+          useFactory: (telegramService: TelegramService) =>
+            new UseCasesProxy(new SendTelegramFileUseCases(telegramService)),
+        },
+        {
           inject: [
             BotService,
             ScrapperService,
+            RegexService,
             SendTelegramMessageUseCases.USE_CASE,
+            SendTelegramFileUseCases.USE_CASE,
           ],
-
           provide: HandleTelegramMessagesUsecases.USE_CASE,
           useFactory: (
             botService: BotService,
             scrapperService: ScrapperService,
+            regexService: RegexService,
             sendTelegramMessageUseCases: SendTelegramMessageUseCases,
+            sendTelegramFileUseCases: SendTelegramFileUseCases,
           ) =>
             new UseCasesProxy(
               new HandleTelegramMessagesUsecases(
                 sendTelegramMessageUseCases,
+                sendTelegramFileUseCases,
                 botService,
                 scrapperService,
+                regexService,
               ),
             ),
         },
@@ -72,6 +87,7 @@ export class TelegramUseCasesProxyModule {
       exports: [
         SetWebhookUseCases.USE_CASE,
         SendTelegramMessageUseCases.USE_CASE,
+        SendTelegramFileUseCases.USE_CASE,
         HandleTelegramMessagesUsecases.USE_CASE,
       ],
     };

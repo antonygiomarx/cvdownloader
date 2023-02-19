@@ -1,10 +1,9 @@
 import { Body, Controller, Inject, Post } from '@nestjs/common';
-import { SetWebhookDto } from '@/modules/channels/telegram/dtos/set-webhook.dto';
-import { TelegramWebhookMessageEvent } from '@/modules/channels/telegram/interfaces/webhook-event.interface';
-
 import { SetWebhookUseCases } from '@usecases/telegram/set-webhook.usecases';
 import { UseCasesProxy } from '@infrastructure/usecases-proxy/use-cases-proxy';
 import { HandleTelegramMessagesUsecases } from '@usecases/telegram/handle-telegram-messages.usecases';
+import { WebhookMessageEvent } from '@domain/messaging/providers/telegram/webhook.interface';
+import { SetWebhookDto } from '@domain/messaging/providers/telegram/dtos/set-webhook.dto';
 
 @Controller('telegram')
 export class TelegramController {
@@ -26,7 +25,7 @@ export class TelegramController {
   @Post('webhook')
   async webhook(
     @Body()
-    { message }: TelegramWebhookMessageEvent,
+    { message }: WebhookMessageEvent,
   ) {
     return await this.handleTelegramMessagesUseCases
       .getInstance()

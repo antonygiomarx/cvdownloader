@@ -1,10 +1,11 @@
 import { UseCases } from '@domain/usecases/usecases';
-import { RegexUtil } from '@modules/util/regex.util';
 import { Inject } from '@nestjs/common';
 import { SendTelegramMessageUseCases } from '@usecases/telegram/send-telegram-message-use.cases';
 import { BotService } from '@infrastructure/bot/bot.service';
-import { Message } from '@modules/channels/telegram/interfaces/webhook-event.interface';
-import { ScrapperService } from '@modules/scrapper/scrapper.service';
+import { SendTelegramFileUseCases } from '@usecases/telegram/send-telegram-file.usecases';
+import { Message } from '@domain/messaging/providers/telegram/webhook.interface';
+import { ScrapperService } from '@infrastructure/scrapper/scrapper.service';
+import { RegexService } from '@infrastructure/util/regex/regex.service';
 
 export class HandleTelegramMessagesUsecases extends UseCases {
   static USE_CASE = 'HandleTelegramMessages';
@@ -22,19 +23,16 @@ export class HandleTelegramMessagesUsecases extends UseCases {
       variants: ['ayuda', 'help'],
       type: 'command',
     },
-    {
-      command: RegexUtil.url,
-      responses: ['Estamos trabajando en ello, por favor espera un momento.'],
-      variants: [],
-      type: 'regex',
-    },
   ];
 
   constructor(
     @Inject(SendTelegramMessageUseCases.USE_CASE)
     private readonly sendTelegramMessageUseCases,
+    @Inject(SendTelegramFileUseCases.USE_CASE)
+    private readonly sendTelegramFileUseCases,
     private readonly botService: BotService,
     private readonly scrapperService: ScrapperService,
+    private readonly regexService: RegexService,
   ) {
     super(HandleTelegramMessagesUsecases.USE_CASE);
   }
@@ -44,17 +42,34 @@ export class HandleTelegramMessagesUsecases extends UseCases {
 
     try {
       const command = this.commands.find((com) => {
-        return (
-          com.command === text ||
-          com.variants.includes(text) ||
-          text.match(com.command)
-        );
+        return com.command === text || com.variants.includes(text);
       });
 
-      if (!command)
-        return await this.sendTelegramMessageUseCases
+      if (!command) {
+        const [cvUrl] = this.regexService.isUrl(text);
+
+        if (!cvUrl)
+          return await this.sendTelegramMessageUseCases
+            .getInstance()
+            .execute(message.chat.id.toString(), this.botService.welcome());
+
+        const url = await this.scrapperService.scrape(cvUrl);
+
+        if (!url) {
+          this.logger.log('No file found');
+
+          await this.sendTelegramMessageUseCases
+            .getInstance()
+            .execute(message.chat.id.toString(), this.botService.error());
+
+          return 'ok';
+        }
+
+        await this.sendTelegramFileUseCases
           .getInstance()
-          .execute(message.chat.id.toString(), this.botService.welcome());
+          .execute(message.chat.id.toString(), url);
+        return 'ok';
+      }
 
       switch (command.type) {
         case 'command':
@@ -63,25 +78,6 @@ export class HandleTelegramMessagesUsecases extends UseCases {
               .getInstance()
               .execute(message.chat.id, response);
           }
-          return 'ok';
-
-        case 'regex':
-          const [url] = text.match(RegexUtil.url);
-          const path = await this.scrapperService.scrape(url);
-
-          if (!path) {
-            this.logger.log('No file found');
-
-            await this.sendTelegramMessageUseCases
-              .getInstance()
-              .execute(message.chat.id.toString(), this.botService.error());
-
-            return 'ok';
-          }
-
-          await this.sendTelegramMessageUseCases
-            .getInstance()
-            .execute(message.chat.id.toString(), path);
           return 'ok';
       }
     } catch (error) {
