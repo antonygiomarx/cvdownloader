@@ -12,10 +12,12 @@ import { TelegramService } from '@infrastructure/messaging/providers/telegram/te
 import { SendTelegramMessageUseCases } from '@usecases/telegram/send-telegram-message-use.cases';
 import { MessagingModule } from '@infrastructure/messaging/messaging.module';
 import { BotService } from '@infrastructure/bot/bot.service';
-import { ScrapperService } from '@modules/scrapper/scrapper.service';
 import { HandleTelegramMessagesUsecases } from '@usecases/telegram/handle-telegram-messages.usecases';
-import { ScrapperModule } from '@modules/scrapper/scrapper.module';
 import { SendTelegramFileUseCases } from '@usecases/telegram/send-telegram-file.usecases';
+import { ScrapperModule } from '@infrastructure/scrapper/scrapper.module';
+import { ScrapperService } from '@infrastructure/scrapper/scrapper.service';
+import { RegexService } from '@infrastructure/util/regex/regex.service';
+import { UtilModule } from '@infrastructure/util/util.module';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { SendTelegramFileUseCases } from '@usecases/telegram/send-telegram-file.
     BotModule,
     MessagingModule,
     ScrapperModule,
+    UtilModule,
   ],
 })
 export class TelegramUseCasesProxyModule {
@@ -58,14 +61,15 @@ export class TelegramUseCasesProxyModule {
           inject: [
             BotService,
             ScrapperService,
+            RegexService,
             SendTelegramMessageUseCases.USE_CASE,
             SendTelegramFileUseCases.USE_CASE,
           ],
-
           provide: HandleTelegramMessagesUsecases.USE_CASE,
           useFactory: (
             botService: BotService,
             scrapperService: ScrapperService,
+            regexService: RegexService,
             sendTelegramMessageUseCases: SendTelegramMessageUseCases,
             sendTelegramFileUseCases: SendTelegramFileUseCases,
           ) =>
@@ -75,6 +79,7 @@ export class TelegramUseCasesProxyModule {
                 sendTelegramFileUseCases,
                 botService,
                 scrapperService,
+                regexService,
               ),
             ),
         },
