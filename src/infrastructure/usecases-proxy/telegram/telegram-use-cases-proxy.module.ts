@@ -15,6 +15,7 @@ import { BotService } from '@infrastructure/bot/bot.service';
 import { ScrapperService } from '@modules/scrapper/scrapper.service';
 import { HandleTelegramMessagesUsecases } from '@usecases/telegram/handle-telegram-messages.usecases';
 import { ScrapperModule } from '@modules/scrapper/scrapper.module';
+import { SendTelegramFileUseCases } from '@usecases/telegram/send-telegram-file.usecases';
 
 @Module({
   imports: [
@@ -48,10 +49,17 @@ export class TelegramUseCasesProxyModule {
             new UseCasesProxy(new SendTelegramMessageUseCases(telegramService)),
         },
         {
+          inject: [TelegramService],
+          provide: SendTelegramFileUseCases.USE_CASE,
+          useFactory: (telegramService: TelegramService) =>
+            new UseCasesProxy(new SendTelegramFileUseCases(telegramService)),
+        },
+        {
           inject: [
             BotService,
             ScrapperService,
             SendTelegramMessageUseCases.USE_CASE,
+            SendTelegramFileUseCases.USE_CASE,
           ],
 
           provide: HandleTelegramMessagesUsecases.USE_CASE,
@@ -59,10 +67,12 @@ export class TelegramUseCasesProxyModule {
             botService: BotService,
             scrapperService: ScrapperService,
             sendTelegramMessageUseCases: SendTelegramMessageUseCases,
+            sendTelegramFileUseCases: SendTelegramFileUseCases,
           ) =>
             new UseCasesProxy(
               new HandleTelegramMessagesUsecases(
                 sendTelegramMessageUseCases,
+                sendTelegramFileUseCases,
                 botService,
                 scrapperService,
               ),
@@ -72,6 +82,7 @@ export class TelegramUseCasesProxyModule {
       exports: [
         SetWebhookUseCases.USE_CASE,
         SendTelegramMessageUseCases.USE_CASE,
+        SendTelegramFileUseCases.USE_CASE,
         HandleTelegramMessagesUsecases.USE_CASE,
       ],
     };

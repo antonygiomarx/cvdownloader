@@ -3,8 +3,9 @@ import { RegexUtil } from '@modules/util/regex.util';
 import { Inject } from '@nestjs/common';
 import { SendTelegramMessageUseCases } from '@usecases/telegram/send-telegram-message-use.cases';
 import { BotService } from '@infrastructure/bot/bot.service';
-import { Message } from '@modules/channels/telegram/interfaces/webhook-event.interface';
 import { ScrapperService } from '@modules/scrapper/scrapper.service';
+import { SendTelegramFileUseCases } from '@usecases/telegram/send-telegram-file.usecases';
+import { Message } from '@domain/messaging/providers/telegram/telegram.interface';
 
 export class HandleTelegramMessagesUsecases extends UseCases {
   static USE_CASE = 'HandleTelegramMessages';
@@ -33,6 +34,8 @@ export class HandleTelegramMessagesUsecases extends UseCases {
   constructor(
     @Inject(SendTelegramMessageUseCases.USE_CASE)
     private readonly sendTelegramMessageUseCases,
+    @Inject(SendTelegramFileUseCases.USE_CASE)
+    private readonly sendTelegramFileUseCases,
     private readonly botService: BotService,
     private readonly scrapperService: ScrapperService,
   ) {
@@ -79,7 +82,7 @@ export class HandleTelegramMessagesUsecases extends UseCases {
             return 'ok';
           }
 
-          await this.sendTelegramMessageUseCases
+          await this.sendTelegramFileUseCases
             .getInstance()
             .execute(message.chat.id.toString(), path);
           return 'ok';
