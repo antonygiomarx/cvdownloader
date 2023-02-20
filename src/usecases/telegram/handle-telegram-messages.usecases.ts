@@ -53,6 +53,10 @@ export class HandleTelegramMessagesUsecases extends UseCases {
             .getInstance()
             .execute(message.chat.id.toString(), this.botService.welcome());
 
+        await this.sendTelegramMessageUseCases
+          .getInstance()
+          .execute(message.chat.id, this.botService.awaitingForFile());
+
         const url = await this.scrapperService.scrape(cvUrl);
 
         if (!url) {

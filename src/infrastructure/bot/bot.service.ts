@@ -22,4 +22,8 @@ export class BotService implements Bot {
   welcome(): string {
     return 'Bienvenido, para descargar tu CV por favor envíame un enlace de Resume.io, si necesitas ayuda puedes escribir /help';
   }
+
+  awaitingForFile(): string {
+    return 'Estamos trabajando en tu CV, por favor espera un momento.';
+  }
 }
