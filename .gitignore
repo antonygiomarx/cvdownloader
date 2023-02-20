@@ -29,16 +29,14 @@ lerna-debug.log*
 
 
 # IDE - VSCode
-.vscode/*
+.vscode
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-.vscode
 
 # env local
 .env
-
 
 #lock local
 package-lock.json
