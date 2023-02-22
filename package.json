@@ -1,7 +1,7 @@
 {
   "name": "cv-downloader",
   "version": "0.0.1",
-  "description": "",
+  "description": "CV Downloader es una herramienta que te permite descargar currículums vitae (CV) de sitios web de búsqueda de empleo como resume.io.",
   "author": "Antony Giomar",
   "private": false,
   "license": "MIT",
