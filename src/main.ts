@@ -3,7 +3,7 @@ import { AppModule } from '@app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 
 export class App {
-  static readonly logger = new Logger('App');
+  static readonly logger = new Logger(App.name);
 
   static readonly port = process.env.PORT || 3000;
 
@@ -11,6 +11,8 @@ export class App {
     const app = await NestFactory.create(AppModule);
 
     app.setGlobalPrefix('api');
+
+    app.enableCors();
 
     app.useGlobalPipes(
       new ValidationPipe({
