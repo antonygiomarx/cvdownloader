@@ -7,6 +7,8 @@ import { LoggerModule } from '@infrastructure/logger/logger.module';
 import { UseCasesProxyModule } from '@infrastructure/usecases-proxy/use-cases-proxy.module';
 import { ScrapperModule } from '@infrastructure/scrapper/scrapper.module';
 import { DefaultController } from './default/default.controller';
+import { CvController } from './cv/cv.controller';
+import { UtilModule } from '@infrastructure/util/util.module';
 
 @Module({
   imports: [
@@ -16,7 +18,8 @@ import { DefaultController } from './default/default.controller';
     BotModule,
     EnvironmentConfigModule,
     LoggerModule,
+    UtilModule,
   ],
-  controllers: [TelegramController, DefaultController],
+  controllers: [TelegramController, DefaultController, CvController],
 })
 export class ControllersModule {}
