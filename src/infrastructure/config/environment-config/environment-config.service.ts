@@ -12,34 +12,34 @@ export class EnvironmentConfigService
   constructor(private readonly configService: ConfigService) {}
 
   get port(): string {
-    return this.configService.get<string>('PORT');
+    return this.configService.getOrThrow<string>('PORT');
   }
 
   get accessKeyId(): string {
-    return this.configService.get<string>('AWS_ACCESS_KEY_ID');
+    return this.configService.getOrThrow<string>('AWS_ACCESS_KEY_ID');
   }
 
   get bucket(): string {
-    return this.configService.get<string>('AWS_BUCKET');
+    return this.configService.getOrThrow<string>('AWS_BUCKET');
   }
 
   get region(): string {
-    return this.configService.get<string>('AWS_REGION');
+    return this.configService.getOrThrow<string>('AWS_REGION');
   }
 
   get secretAccessKey(): string {
-    return this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
+    return this.configService.getOrThrow<string>('AWS_SECRET_ACCESS_KEY');
   }
 
   getScrapperTimeout(): string {
-    return this.configService.get<string>('SCRAPPER_TIMEOUT') || '10000';
+    return this.configService.getOrThrow<string>('SCRAPPER_TIMEOUT') || '10000';
   }
 
   getTelegramToken(): string {
-    return this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+    return this.configService.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
   }
 
   getTelegramWebhookUrl(): string {
-    return this.configService.get<string>('TELEGRAM_WEBHOOK_URL');
+    return this.configService.getOrThrow<string>('TELEGRAM_WEBHOOK_URL');
   }
 }
