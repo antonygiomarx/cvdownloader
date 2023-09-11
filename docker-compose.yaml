@@ -1,21 +1,23 @@
-version: '3'
+version: '3.7'
 
 services:
-  app:
-    build: .
-    restart: always
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    ports:
+      - ${PORT}:${PORT}
+
     volumes:
       - .:/app
-    ports:
-      - "${PORT}:${PORT}"
+
     environment:
-      PORT: ${PORT}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
-      CRAWL_TIMEOUT: ${CRAWL_TIMEOUT}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_REGION: ${AWS_DEFAULT_REGION}
-      AWS_BUCKET: ${AWS_S3_BUCKET}
-
-
-    container_name: cvdownloader
+      - PORT=${PORT}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_WEBHOOK_URL=${TELEGRAM_WEBHOOK_URL}
+      - SCRAPPER_TIMEOUT=${SCRAPPER_TIMEOUT}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_BUCKET=${AWS_BUCKET}

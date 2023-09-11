@@ -32,13 +32,17 @@ COPY --from=builder /app/dist ./dist
 RUN mkdir -p ./cvdownloader
 
 COPY --from=builder ./app/dist/ ./app
-#COPY ./.env ./app/.env
+
+# Copiar las variables de entorno
+COPY --from=builder ./app/.env ./app
 
 # Dar permiso para ejecutar la applicación
 RUN adduser --disabled-password cvdownloader
 RUN chown -R cvdownloader:cvdownloader ./cvdownloader
 USER cvdownloader
 
+# Expose the listening port of your app
 EXPOSE 3000
 
+# Run the app
 CMD [ "node","dist/main" ]
