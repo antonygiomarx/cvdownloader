@@ -4,14 +4,15 @@ FROM node:alpine3.17 AS deps
 WORKDIR /app
 COPY package.json ./
 RUN apk add g++ make py3-pip
-RUN yarn install --frozen-lockfile
+RUN npm install --frozen-lockfile
+RUN npx playwright install
 
 # Build the app with cache dependencies
 FROM node:alpine3.17 AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN yarn build
+RUN npm run build
 
 
 # Production image, copy all the local and run next
@@ -24,7 +25,7 @@ COPY package.json ./
 
 RUN apk add g++ make py3-pip
 
-RUN yarn install --frozen-lockfile
+RUN npm install --frozen-lockfile
 
 COPY --from=builder /app/dist ./dist
 
